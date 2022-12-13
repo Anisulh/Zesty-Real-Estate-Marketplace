@@ -1,0 +1,19 @@
+* {
+  font-family: Roboto;
+  margin: 0;
+  padding: 0;
+}
+
+.space {
+  margin: 0 5px;
+}
+
+.password-tips-list {
+  margin-left: 20px;
+}
+
+.map-container {
+  width: 100%;
+  height: 100vh;
+  border-radius: 10px;
+}
