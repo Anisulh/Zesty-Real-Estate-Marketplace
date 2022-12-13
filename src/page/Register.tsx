@@ -28,7 +28,6 @@ import {
   StatusType,
 } from "../types";
 import { Link, useNavigate } from "react-router-dom";
-import bcrypt from "bcryptjs";
 import {
   passwordStrengthValidation,
   registerFormValidation,
@@ -125,12 +124,10 @@ function Register() {
       handleCodeInApp: true,
     };
     try {
-      const salt = bcrypt.genSaltSync(10);
-      const hashedPassword = bcrypt.hashSync(password, salt);
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        hashedPassword
+        password
       );
       const user = userCredential.user;
       await setDoc(doc(db, "users", user.uid), tempData);

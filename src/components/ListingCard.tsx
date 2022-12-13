@@ -3,7 +3,6 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { CardActionArea, IconButton, Stack } from "@mui/material";
-import house from "../images/house.jpg";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useState } from "react";
 import BedIcon from "@mui/icons-material/Bed";
@@ -16,13 +15,13 @@ function ListingCard(props: ListingProps) {
   return (
     <Card sx={{ maxWidth: 345, borderRadius: "20px" }}>
       <CardActionArea>
-        <CardMedia
+        {/* <CardMedia
           component="img"
           height="150"
           image={house}
           alt="house"
           sx={{ borderRadius: "0 0 20px 20px" }}
-        />
+        /> */}
         <CardContent>
           <IconButton
             aria-label="Favorite Button"
