@@ -100,8 +100,11 @@ export interface ListingDataType {
   }
   userRef?: string;
 }
-
 export interface ListingType {
   id: string;
   data: DocumentData;
+}
+
+export interface ListingProps {
+  listing: ListingType
 }

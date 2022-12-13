@@ -9,9 +9,9 @@ import { useState } from "react";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import SquareFootIcon from "@mui/icons-material/SquareFoot";
-import { ListingType } from "../types";
+import { ListingProps } from "../types";
 
-function ListingCard(listing: ListingType) {
+function ListingCard(props: ListingProps) {
   const [favorite, setFavorite] = useState(false);
   return (
     <Card sx={{ maxWidth: 345, borderRadius: "20px" }}>

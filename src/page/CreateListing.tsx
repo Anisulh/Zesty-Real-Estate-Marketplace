@@ -261,11 +261,7 @@ function CreateListing() {
 
   return (
     <Container maxWidth="md">
-      {status ? (
-        <Status status={status} handleClose={handleStatusClose} />
-      ) : (
-        <></>
-      )}
+      {status && <Status status={status} handleClose={handleStatusClose} />}
       <Typography variant="h4" component="h2" sx={{ fontWeight: "bold" }}>
         Create Listing
       </Typography>
