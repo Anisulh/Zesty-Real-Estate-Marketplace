@@ -1,30 +1,24 @@
-import {
-  getAuth,
-  isSignInWithEmailLink,
-  signInWithEmailLink,
-} from "firebase/auth";
 import { useState } from "react";
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  getDocs,
-  DocumentData,
-} from "firebase/firestore";
-import { db } from "../firebaseConfig";
 import { useEffect } from "react";
 import { ListingType, StatusType } from "../types";
-import { Box, Container, Stack } from "@mui/system";
+import Box from "@mui/system/Box";
+import Container from "@mui/system/Container";
+import Stack from "@mui/system/Stack";
 import { Autocomplete, useLoadScript } from "@react-google-maps/api";
-import { IconButton, TextField, Typography } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import ListingCard from "../components/ListingCard";
 import Spinner from "../components/Spinner";
 import Status from "../components/Status";
 import SearchIcon from "@mui/icons-material/Search";
+import { isNewlyRegistered } from "../utils/authHandler";
+import { fetchListings } from "../utils/listingHandler";
+import { useNavigate } from "react-router-dom";
+import { handleStatusClose } from "../utils/statusHandler";
 
 function Home() {
+  const navigate = useNavigate();
   const [rentListings, setRentListings] = useState<ListingType[]>([]);
   const [saleListings, setSaleListings] = useState<ListingType[]>([]);
   const [status, setStatus] = useState<StatusType>({
@@ -33,8 +27,6 @@ function Home() {
     message: "",
   });
   const [loading, setLoading] = useState(true);
-  // Confirm the link is a sign-in with email link.
-  const auth = getAuth();
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_MAPS_API_KEY,
     libraries: ["places"],
@@ -56,85 +48,12 @@ function Home() {
     }
   };
   useEffect(() => {
-    const checkNewRegistration = async () => {
-      if (isSignInWithEmailLink(auth, window.location.href)) {
-        let email: string | null =
-          window.localStorage.getItem("emailForSignIn");
-        if (!email) {
-          email = window.prompt("Please provide your email for confirmation");
-        } else {
-          try {
-            const result = await signInWithEmailLink(
-              auth,
-              email,
-              window.location.href
-            );
-            window.localStorage.removeItem("emailForSignIn");
-          } catch (error) {
-            console.log(error);
-          }
-        }
-      }
-    };
-    const fetchListings = async () => {
-      try {
-        const listingsRef = collection(db, "listings");
-        const saleQuery = query(
-          listingsRef,
-          where("type", "==", "sale"),
-          orderBy("timestamp", "desc"),
-          limit(5)
-        );
-        const rentQuery = query(
-          listingsRef,
-          where("type", "==", "rent"),
-          orderBy("timestamp", "desc"),
-          limit(5)
-        );
-        const saleQuerySnap = await getDocs(saleQuery);
-        const rentQuerySnap = await getDocs(rentQuery);
-        const tempSaleListings:
-          | ((prevState: never[]) => never[])
-          | { id: string; data: DocumentData }[] = [];
-        const tempRentListings:
-          | ((prevState: never[]) => never[])
-          | { id: string; data: DocumentData }[] = [];
-        saleQuerySnap.forEach((doc) => {
-          return tempSaleListings.push({
-            id: doc.id,
-            data: doc.data(),
-          });
-        });
-        rentQuerySnap.forEach((doc) => {
-          return tempRentListings.push({
-            id: doc.id,
-            data: doc.data(),
-          });
-        });
-        setSaleListings(tempSaleListings);
-        setRentListings(tempRentListings);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    };
-    checkNewRegistration();
-    fetchListings();
+    isNewlyRegistered(navigate);
   }, []);
-  const handleStatusClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setStatus({
-      open: false,
-      error: false,
-      message: "",
-    });
-  };
+
+  useEffect(() => {
+    fetchListings(setSaleListings, setRentListings, setLoading);
+  }, []);
 
   if (loading || !isLoaded) {
     return <Spinner />;
@@ -142,7 +61,13 @@ function Home() {
 
   return (
     <Container maxWidth="md">
-      {status && <Status status={status} handleClose={handleStatusClose} />}
+      {status && (
+        <Status
+          status={status}
+          setStatus={setStatus}
+          handleClose={handleStatusClose}
+        />
+      )}
       <Box>
         <Typography variant="h2" component="h2">
           Know what your looking for?

@@ -1,6 +1,4 @@
 import Button from "@mui/material/Button";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/system/Box";
 import Container from "@mui/system/Container";
@@ -9,6 +7,7 @@ import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { StatusType, ForgotPasswordEmailError } from "../types";
 import Status from "../components/Status";
+import { handleStatusClose } from "../utils/statusHandler";
 
 function ForgotPassword() {
   const [email, setEmail] = useState<string>("");
@@ -21,21 +20,6 @@ function ForgotPassword() {
     error: false,
     message: "",
   });
-
-  const handleStatusClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setStatus({
-      open: false,
-      error: false,
-      message: "",
-    });
-  };
 
   const validation = () => {
     const emailRegEx = new RegExp(
@@ -73,7 +57,13 @@ function ForgotPassword() {
       justifyContent="center"
       minHeight="90vh"
     >
-      <Status status={status} handleClose={handleStatusClose} />
+      {status && (
+        <Status
+          status={status}
+          setStatus={setStatus}
+          handleClose={handleStatusClose}
+        />
+      )}
       <Container maxWidth="sm">
         <Typography
           variant="h3"

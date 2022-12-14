@@ -1,4 +1,5 @@
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import FormHelperText from "@mui/material/FormHelperText";
 import Button from "@mui/material/Button";
 import red from "@mui/material/colors/red";
@@ -36,6 +37,7 @@ import { StyledLinearProgress } from "../styles";
 import Popper from "@mui/material/Popper";
 import { ClickAwayListener } from "@mui/material";
 import Status from "../components/Status";
+import { handleStatusClose } from "../utils/statusHandler";
 
 function Register() {
   const navigate = useNavigate();
@@ -87,19 +89,7 @@ function Register() {
   useEffect(() => {
     passwordStrengthValidation(password, setPasswordStrength);
   }, [password]);
-  const handleStatusClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setStatus({
-      open: false,
-      error: false,
-      message: "",
-    });
-  };
+
   const onFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserData((prevState: registerUserData) => ({
       ...prevState,
@@ -160,10 +150,12 @@ function Register() {
       justifyContent="center"
       minHeight="90vh"
     >
-      {status ? (
-        <Status status={status} handleClose={handleStatusClose} />
-      ) : (
-        <></>
+      {status && (
+        <Status
+          status={status}
+          setStatus={setStatus}
+          handleClose={handleStatusClose}
+        />
       )}
       <Container maxWidth="xs">
         <Typography

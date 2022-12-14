@@ -1,6 +1,6 @@
 import { LinearProgressProps } from "@mui/material";
 import { DocumentData, FieldValue } from "firebase/firestore";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, SyntheticEvent } from "react";
 
 
 export interface registerUserData {
@@ -31,8 +31,10 @@ export interface loginErrors {
 
 export interface StatusProps{
   status: StatusType;
+  setStatus:Dispatch<SetStateAction<StatusType>>;
   handleClose: (
-    event: React.SyntheticEvent | Event,
+    event: SyntheticEvent | Event,
+    setStatus: Dispatch<SetStateAction<StatusType>>,
     reason?: string
   ) => void;
 }

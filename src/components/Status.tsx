@@ -10,10 +10,10 @@ function Status(props: StatusProps) {
           anchorOrigin={{ vertical: "top", horizontal: "right" }}
           open={props.status.open}
           autoHideDuration={6000}
-          onClose={props.handleClose}
+          onClose={(e) => props.handleClose(e, props.setStatus)}
         >
           <Alert
-            onClose={props.handleClose}
+            onClose={(e) => props.handleClose(e, props.setStatus)}
             severity="error"
             sx={{ width: "100%" }}
           >
@@ -25,7 +25,7 @@ function Status(props: StatusProps) {
           anchorOrigin={{ vertical: "top", horizontal: "right" }}
           open={props.status.open}
           autoHideDuration={6000}
-          onClose={props.handleClose}
+          onClose={(e) => props.handleClose(e, props.setStatus)}
           message={props.status.message}
         />
       )}

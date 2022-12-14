@@ -1,18 +1,14 @@
-import {
-  Button,
-  FormControl,
-  MenuItem,
-  Select,
-  TextField,
-  ToggleButton,
-  Typography,
-} from "@mui/material";
-import { Box, Container, Stack } from "@mui/system";
+import Button from "@mui/material/Button";
+import MenuItem from "@mui/material/MenuItem";
+
+import Box from "@mui/system/Box";
+import Container from "@mui/system/Container";
+import Stack from "@mui/system/Stack";
 import { Autocomplete, useLoadScript } from "@react-google-maps/api";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GeocodeResult, getGeocode, getLatLng } from "use-places-autocomplete";
+import { getGeocode, getLatLng } from "use-places-autocomplete";
 import Spinner from "../components/Spinner";
 import Status from "../components/Status";
 import { ListingDataType, StatusType } from "../types";
@@ -25,6 +21,11 @@ import {
 import { uuidv4 } from "@firebase/util";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebaseConfig";
+import { handleStatusClose } from "../utils/statusHandler";
+import Typography from "@mui/material/Typography";
+import ToggleButton from "@mui/material/ToggleButton";
+import TextField from "@mui/material/TextField";
+import Select from "@mui/material/Select";
 
 function CreateListing() {
   const navigate = useNavigate();
@@ -99,20 +100,6 @@ function CreateListing() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth, navigate]);
-
-  const handleStatusClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setStatus({
-      open: false,
-      error: false,
-      message: "",
-    });
-  };
   const [loading, setLoading] = useState(false);
   const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -261,7 +248,13 @@ function CreateListing() {
 
   return (
     <Container maxWidth="md">
-      {status && <Status status={status} handleClose={handleStatusClose} />}
+      {status && (
+        <Status
+          status={status}
+          setStatus={setStatus}
+          handleClose={handleStatusClose}
+        />
+      )}
       <Typography variant="h4" component="h2" sx={{ fontWeight: "bold" }}>
         Create Listing
       </Typography>

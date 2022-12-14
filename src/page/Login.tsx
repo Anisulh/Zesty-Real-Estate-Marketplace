@@ -19,7 +19,7 @@ import { loginErrors, loginUserData, StatusType } from "../types";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import Status from "../components/Status";
-import bcrypt from "bcryptjs";
+import { handleStatusClose } from "../utils/statusHandler";
 
 function Login() {
   const navigate = useNavigate();
@@ -39,20 +39,6 @@ function Login() {
   });
   const { email, password } = userData;
   const { emailError, passwordError } = error;
-
-  const handleStatusClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setStatus({
-      open: false,
-      error: false,
-      message: "",
-    });
-  };
 
   const onFormChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUserData((prevState: loginUserData) => ({
@@ -119,10 +105,12 @@ function Login() {
       justifyContent="center"
       minHeight="90vh"
     >
-      {status ? (
-        <Status status={status} handleClose={handleStatusClose} />
-      ) : (
-        <></>
+      {status && (
+        <Status
+          status={status}
+          setStatus={setStatus}
+          handleClose={handleStatusClose}
+        />
       )}
       <Container maxWidth="xs">
         <Typography
