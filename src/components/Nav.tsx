@@ -4,7 +4,6 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Badge from "@mui/material/Badge";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -15,13 +14,22 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
 import { Container } from "@mui/system";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { getAuth, signOut } from "firebase/auth";
 
 function Nav() {
   const navigate = useNavigate();
+  const { loggedIn } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     useState<null | HTMLElement>(null);
 
+  const onLogout = async () => {
+    const auth = getAuth();
+    await signOut(auth);
+    handleMenuClose();
+    navigate("/");
+  };
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
@@ -59,8 +67,15 @@ function Nav() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem
+        onClick={() => {
+          handleMenuClose();
+          navigate("/profile");
+        }}
+      >
+        Profile
+      </MenuItem>
+      <MenuItem onClick={onLogout}>Log Out</MenuItem>
     </Menu>
   );
 
@@ -81,40 +96,47 @@ function Nav() {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 4 new mails"
-          color="inherit"
-          onClick={() => navigate("/register")}
-        >
-          <CreateIcon />
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-          onClick={() => navigate("/login")}
-        >
-          <LoginIcon />
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      {/* <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem> */}
+      {loggedIn ? (
+        <MenuItem onClick={handleProfileMenuOpen}>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="primary-search-account-menu"
+            aria-haspopup="true"
+            color="inherit"
+          >
+            <AccountCircle />
+          </IconButton>
+          <p>Profile</p>
+        </MenuItem>
+      ) : (
+        <Box>
+          <MenuItem>
+            <IconButton
+              size="large"
+              aria-label="show 4 new mails"
+              color="inherit"
+              onClick={() => navigate("/register")}
+            >
+              <CreateIcon />
+            </IconButton>
+            <p>Register</p>
+          </MenuItem>
+          <MenuItem>
+            <IconButton
+              size="large"
+              aria-label="show 17 new notifications"
+              color="inherit"
+              onClick={() => navigate("/login")}
+            >
+              <LoginIcon />
+            </IconButton>
+            <p>Login</p>
+          </MenuItem>
+        </Box>
+      )}
+
+      {/* */}
     </Menu>
   );
 
@@ -141,33 +163,38 @@ function Nav() {
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton
-              size="large"
-              aria-label="show 4 new mails"
-              color="inherit"
-              onClick={() => navigate("/register")}
-            >
-              <CreateIcon />
-            </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-              onClick={() => navigate("/login")}
-            >
-              <LoginIcon />
-            </IconButton>
-            {/* <IconButton
-              size="large"
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton> */}
+            {loggedIn ? (
+              <IconButton
+                size="large"
+                edge="end"
+                aria-label="account of current user"
+                aria-controls={menuId}
+                aria-haspopup="true"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+            ) : (
+              <>
+                <IconButton
+                  size="large"
+                  aria-label="show 4 new mails"
+                  color="inherit"
+                  onClick={() => navigate("/register")}
+                >
+                  <CreateIcon />
+                </IconButton>
+                <IconButton
+                  size="large"
+                  aria-label="show 17 new notifications"
+                  color="inherit"
+                  onClick={() => navigate("/login")}
+                >
+                  <LoginIcon />
+                </IconButton>
+              </>
+            )}
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton

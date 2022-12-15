@@ -18,6 +18,8 @@ import {
   createUserWithEmailAndPassword,
   sendSignInLinkToEmail,
   signOut,
+  sendEmailVerification,
+  updateProfile,
 } from "firebase/auth";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { ChangeEvent, FormEvent, MouseEvent, useEffect, useState } from "react";
@@ -110,7 +112,7 @@ function Register() {
     tempData["timestamp"] = serverTimestamp();
     const auth = getAuth();
     const actionCodeSettings = {
-      url: "http://localhost:5173/",
+      url: "http://localhost:5173/login",
       handleCodeInApp: true,
     };
     try {
@@ -121,9 +123,14 @@ function Register() {
       );
       const user = userCredential.user;
       await setDoc(doc(db, "users", user.uid), tempData);
-      await signOut(auth);
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      window.localStorage.setItem("emailForSignIn", email);
+      if (auth.currentUser) {
+        const name = `${firstName} ${lastName}`;
+        updateProfile(auth.currentUser, {
+          displayName: name,
+        });
+        await sendEmailVerification(auth.currentUser, actionCodeSettings);
+        await signOut(auth);
+      }
       navigate("/register/email-verification");
     } catch (error: any) {
       const errorCode = error.code;
