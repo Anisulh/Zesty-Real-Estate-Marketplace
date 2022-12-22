@@ -1,4 +1,3 @@
-import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -6,14 +5,13 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import CreateIcon from "@mui/icons-material/Create";
 import LoginIcon from "@mui/icons-material/Login";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
 import { Container } from "@mui/system";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getAuth, signOut } from "firebase/auth";
 
@@ -144,23 +142,26 @@ function Nav() {
     <Container sx={{ flexGrow: 1 }}>
       <AppBar position="static" elevation={0} color="transparent">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
           <Typography
-            variant="h6"
+            variant="h5"
             noWrap
             component="div"
-            sx={{ display: { xs: "none", sm: "block" } }}
+            sx={{ display: { xs: "none", sm: "block" }, fontWeight: 700 }}
           >
             Zesty
           </Typography>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ display: { xs: "none", md: "flex" }, pl: "60px" }}>
+            <Link to={"/search"} className="navLink">
+              Buy
+            </Link>
+            <Link to={"/search"} className="navLink">
+              Sell
+            </Link>
+            <Link to={"/search"} className="navLink">
+              Rent
+            </Link>
+          </Box>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             {loggedIn ? (
@@ -176,24 +177,16 @@ function Nav() {
                 <AccountCircle />
               </IconButton>
             ) : (
-              <>
-                <IconButton
-                  size="large"
-                  aria-label="show 4 new mails"
-                  color="inherit"
-                  onClick={() => navigate("/register")}
-                >
-                  <CreateIcon />
-                </IconButton>
-                <IconButton
-                  size="large"
-                  aria-label="show 17 new notifications"
-                  color="inherit"
-                  onClick={() => navigate("/login")}
-                >
-                  <LoginIcon />
-                </IconButton>
-              </>
+              <div className="authGroup">
+                <Link to="/login" className="navLink login">
+                  Login
+                </Link>
+                <div className="authGroup-register">
+                  <Link to="/register" className="navLink register">
+                    Register
+                  </Link>
+                </div>
+              </div>
             )}
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>

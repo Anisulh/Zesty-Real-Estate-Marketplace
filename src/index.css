@@ -17,3 +17,40 @@
   height: 100vh;
   border-radius: 10px;
 }
+
+.navLink {
+  text-decoration: none;
+  color: black;
+  padding-inline: 15px;
+  display: inline-block;
+  padding-bottom: 2px;
+  background-image: linear-gradient(black, black);
+  background-position: left bottom;
+  background-size: 0% 2px;
+  background-repeat: no-repeat;
+  transition: background-size 0.5s;
+}
+
+.navLink:hover {
+  background-size: 100% 2px;
+}
+
+.authGroup  {
+  background-color: lightgray;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+}
+.register {
+  color:white;
+  background-image: none;
+}
+.login{
+  background-image: none;
+}
+.authGroup-register{
+  background-color: rgb(32, 32, 32);
+  color: white;
+  padding: 5px 0 ;
+  border-radius: 40px;
+}
