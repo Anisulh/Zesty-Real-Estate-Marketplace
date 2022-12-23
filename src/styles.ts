@@ -3,7 +3,8 @@ import LinearProgress, {
   linearProgressClasses,
 } from "@mui/material/LinearProgress";
 import { StyledLinearProgressProps } from "./types";
-
+import { createTheme } from "@mui/material";
+import herobg from "./assets/images/herobg.jpg";
 
 export const StyledLinearProgress = styled(LinearProgress, {
   shouldForwardProp: (prop) => prop !== "progress",
@@ -17,7 +18,7 @@ export const StyledLinearProgress = styled(LinearProgress, {
     },
     [`& .${linearProgressClasses.bar}`]: {
       borderRadius: 5,
-      backgroundColor: 'red',
+      backgroundColor: "red",
     },
   }),
   ...(progress === 50 && {
@@ -29,7 +30,7 @@ export const StyledLinearProgress = styled(LinearProgress, {
     },
     [`& .${linearProgressClasses.bar}`]: {
       borderRadius: 5,
-      backgroundColor: 'orange',
+      backgroundColor: "orange",
     },
   }),
   ...(progress === 80 && {
@@ -41,7 +42,7 @@ export const StyledLinearProgress = styled(LinearProgress, {
     },
     [`& .${linearProgressClasses.bar}`]: {
       borderRadius: 5,
-      backgroundColor: 'blue',
+      backgroundColor: "blue",
     },
   }),
   ...(progress === 100 && {
@@ -53,7 +54,44 @@ export const StyledLinearProgress = styled(LinearProgress, {
     },
     [`& .${linearProgressClasses.bar}`]: {
       borderRadius: 5,
-      backgroundColor: 'green',
+      backgroundColor: "green",
     },
   }),
 }));
+
+export const heroBG = createTheme({
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: `url(${herobg})`,
+          height: "600px",
+          backgroundPosition: "top left",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "150%",
+        },
+      },
+    },
+  },
+});
+
+export const inputStyleOverride = createTheme({
+  components: {
+    MuiFilledInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "rgb(232, 241, 250)",
+          "&:hover": {
+            backgroundColor: "rgb(250, 232, 241)",
+            "@media (hover: none)": {
+              backgroundColor: "rgb(232, 241, 250)",
+            },
+          },
+          "&.Mui-focused": {
+            backgroundColor: "rgb(250, 241, 232)",
+          },
+        },
+      },
+    },
+  },
+});

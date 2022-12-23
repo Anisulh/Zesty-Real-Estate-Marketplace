@@ -20,7 +20,7 @@ export default function Search() {
   });
   if (!isLoaded) return <Spinner />;
   return (
-    <Container>
+    <Container maxWidth='xl'>
       <SearchBar setSelected={setSelected} />
       <Stack direction="row">
         <Map selected={selected} />

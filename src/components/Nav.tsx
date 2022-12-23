@@ -139,19 +139,12 @@ function Nav() {
   );
 
   return (
-    <Container sx={{ flexGrow: 1 }}>
+    <Container maxWidth="xl" sx={{ flexGrow: 1, py: 1 }}>
       <AppBar position="static" elevation={0} color="transparent">
         <Toolbar>
-          <Typography
-            variant="h5"
-            noWrap
-            component="div"
-            sx={{ display: { xs: "none", sm: "block" }, fontWeight: 700 }}
-          >
-            Zesty
-          </Typography>
+          <Link to={"/"} className="logo">Zesty</Link>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" }, pl: "60px" }}>
+          <Box sx={{ display: { xs: "none", md: "flex" }, pl: "85px" }}>
             <Link to={"/search"} className="navLink">
               Buy
             </Link>

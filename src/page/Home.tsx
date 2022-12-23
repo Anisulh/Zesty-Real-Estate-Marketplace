@@ -6,7 +6,6 @@ import Container from "@mui/system/Container";
 import Stack from "@mui/system/Stack";
 import { Autocomplete, useLoadScript } from "@react-google-maps/api";
 import IconButton from "@mui/material/IconButton";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ListingCard from "../components/ListingCard";
 import Spinner from "../components/Spinner";
@@ -17,17 +16,13 @@ import { fetchListings } from "../utils/listingHandler";
 import { useNavigate } from "react-router-dom";
 import { handleStatusClose } from "../utils/statusHandler";
 import {
-  createTheme,
   Divider,
   FilledInput,
-  FormControl,
   InputAdornment,
-  InputLabel,
   Paper,
   ThemeProvider,
 } from "@mui/material";
-
-import herobg from "../assets/images/herobg.jpg";
+import { heroBG, inputStyleOverride } from "../styles";
 
 function Home() {
   const navigate = useNavigate();
@@ -66,52 +61,13 @@ function Home() {
   useEffect(() => {
     fetchListings(setSaleListings, setRentListings, setLoading);
   }, []);
-  const heroBG = createTheme({
-    components: {
-      MuiPaper: {
-        styleOverrides: {
-          root: {
-            backgroundImage: `url(${herobg})`,
-            height: "500px" /* You must set a specified height */,
-            backgroundPosition: "top left" /* Center the image */,
-            backgroundRepeat: "no-repeat" /* Do not repeat the image */,
-            backgroundSize:
-              "150%" /* Resize the background image to cover the entire container */,
-            // filter: "blur(8px)",
-          },
-        },
-      },
-    },
-  });
-
-  const inputStyleOverride = createTheme({
-    components: {
-      MuiFilledInput: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "rgb(232, 241, 250)",
-            "&:hover": {
-              backgroundColor: "rgb(250, 232, 241)",
-              // Reset on touch devices, it doesn't add specificity
-              "@media (hover: none)": {
-                backgroundColor: "rgb(232, 241, 250)",
-              },
-            },
-            "&.Mui-focused": {
-              backgroundColor: "rgb(250, 241, 232)",
-            },
-          },
-        },
-      },
-    },
-  });
 
   if (loading || !isLoaded) {
     return <Spinner />;
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mb: 2 }}>
+    <Container maxWidth="xl" sx={{ mb: 2 }}>
       {status && (
         <Status
           status={status}
@@ -172,7 +128,7 @@ function Home() {
           </Paper>
         </ThemeProvider>
         <Paper
-          sx={{ position: "absolute", bottom: "6%", mx: 3, borderRadius: 3 }}
+          sx={{ position: "absolute", bottom: 0, mx: 10, borderRadius: 3 }}
         >
           <Box
             sx={{
@@ -235,7 +191,7 @@ function Home() {
           </Box>
         </Paper>
       </Box>
-      <Box>
+      <Box mt={10}>
         <Typography variant="h5" component="h3" sx={{ fontWeight: 700 }}>
           Take the First Step
         </Typography>
