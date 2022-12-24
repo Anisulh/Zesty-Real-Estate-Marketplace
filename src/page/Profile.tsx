@@ -63,10 +63,19 @@ function Profile() {
           >
             Properties Listed:
           </Typography>
-          <Box sx={{backgroundColor: 'lightgray', borderRadius: '40px', color: 'black'}}>
-            <Button sx={{color: 'inherit', borderRadius: '40px'}}> See All</Button>
-            <IconButton sx={{backgroundColor: '#323232'}}>
-              <AddRounded sx={{color: 'white'}} />
+          <Box
+            sx={{
+              backgroundColor: "lightgray",
+              borderRadius: "40px",
+              color: "black",
+            }}
+          >
+            <Button sx={{ color: "inherit", borderRadius: "40px" }}>
+              {" "}
+              See All
+            </Button>
+            <IconButton sx={{ backgroundColor: "#323232" }}>
+              <AddRounded sx={{ color: "white" }} />
             </IconButton>
           </Box>
         </Stack>
