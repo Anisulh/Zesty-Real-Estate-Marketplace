@@ -216,7 +216,10 @@ function Profile() {
               {" "}
               See All
             </Button>
-            <IconButton onClick={() => navigate('/create-listing')} sx={{ backgroundColor: "#323232" }}>
+            <IconButton
+              onClick={() => navigate("/create-listing")}
+              sx={{ backgroundColor: "#323232" }}
+            >
               <AddRounded sx={{ color: "white" }} />
             </IconButton>
           </Box>
