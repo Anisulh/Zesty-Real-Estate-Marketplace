@@ -5,6 +5,7 @@ import CreateListing from "./page/CreateListing";
 import EmailVerification from "./page/EmailVerification";
 import ForgotPassword from "./page/ForgotPassword";
 import Home from "./page/Home";
+import ListingPage from "./page/ListingPage";
 import Login from "./page/Login";
 import NotFound from "./page/NotFound";
 import Profile from "./page/Profile";
@@ -34,6 +35,7 @@ function App() {
 
         <Route path="/search" element={<Search />} />
         <Route path="/create-listing" element={<CreateListing />} />
+        <Route path="/listing/:listingID" element={<ListingPage />} />
       </Routes>
     </BrowserRouter>
   );
