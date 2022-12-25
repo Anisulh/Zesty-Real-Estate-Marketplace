@@ -26,6 +26,8 @@ import Typography from "@mui/material/Typography";
 import ToggleButton from "@mui/material/ToggleButton";
 import TextField from "@mui/material/TextField";
 import Select from "@mui/material/Select";
+import { IconButton, ImageList, ImageListItem } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
 
 function CreateListing() {
   const navigate = useNavigate();
@@ -84,7 +86,7 @@ function CreateListing() {
     address,
     geoCode,
   } = listingData;
-
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   useEffect(() => {
     if (isMounted) {
       onAuthStateChanged(auth, (user) => {
@@ -100,6 +102,17 @@ function CreateListing() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth, navigate]);
+
+  useEffect(() => {
+    if (images) {
+      let newArr = [];
+      for (let i = 0; i < images.length; i++) {
+        newArr.push(URL.createObjectURL(images[i]));
+      }
+      setImageUrls(newArr);
+    }
+  }, [images]);
+
   const [loading, setLoading] = useState(false);
   const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -398,7 +411,7 @@ function CreateListing() {
             label="heloow"
             name="homeType"
             value={homeType}
-            onChange={() => onFormChange}
+            onChange={onFormChange}
           >
             <MenuItem value="singleFamily">Single Family</MenuItem>
             <MenuItem value="condo">Condo</MenuItem>
@@ -614,16 +627,55 @@ function CreateListing() {
           <Typography variant="body1" component="p">
             The first image will be the cover (max 6).
           </Typography>
-          <input
-            type="file"
-            name="images"
-            id="images"
-            onChange={onFormChange}
-            max={6}
-            accept=".jpg,.png,.jpeg"
-            multiple
-            required
-          />
+
+          <Button variant="contained" component="label">
+            Upload
+            <input
+              hidden
+              type="file"
+              name="images"
+              onChange={onFormChange}
+              max={6}
+              accept=".jpg,.png,.jpeg"
+              multiple
+              required
+            />
+          </Button>
+          <Box>
+            <ImageList
+              sx={{ width: 500, height: 450 }}
+              cols={3}
+              gap={5}
+              rowHeight={164}
+            >
+              {imageUrls?.map((item) => (
+                <ImageListItem key={item} sx={{ position: "relative" }}>
+                  <IconButton
+                    onClick={() => {
+                      const index = imageUrls.findIndex(
+                        (image) => image === item
+                      );
+                      if (index > -1) {
+                        setImageUrls((prevState) =>
+                          [...prevState].filter((image) => image !== item)
+                        );
+                      }
+                    }}
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      right: 0,
+                      backgroundColor: "gray",
+                      p: 0,
+                    }}
+                  >
+                    <ClearIcon sx={{ color: "white" }} />
+                  </IconButton>
+                  <img src={item} loading="lazy" />
+                </ImageListItem>
+              ))}
+            </ImageList>
+          </Box>
         </Box>
         <Stack
           direction="row"
