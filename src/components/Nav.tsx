@@ -14,8 +14,10 @@ import { Container } from "@mui/system";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getAuth, signOut } from "firebase/auth";
+import { Avatar } from "@mui/material";
 
 function Nav() {
+  const auth = getAuth();
   const navigate = useNavigate();
   const { loggedIn } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -23,7 +25,6 @@ function Nav() {
     useState<null | HTMLElement>(null);
 
   const onLogout = async () => {
-    const auth = getAuth();
     await signOut(auth);
     handleMenuClose();
     navigate("/");
@@ -142,7 +143,9 @@ function Nav() {
     <Container maxWidth="xl" sx={{ flexGrow: 1, py: 1 }}>
       <AppBar position="static" elevation={0} color="transparent">
         <Toolbar>
-          <Link to={"/"} className="logo">Zesty</Link>
+          <Link to={"/"} className="logo">
+            Zesty
+          </Link>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" }, pl: "85px" }}>
             <Link to={"/search"} className="navLink">
@@ -158,17 +161,13 @@ function Nav() {
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             {loggedIn ? (
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="account of current user"
-                aria-controls={menuId}
-                aria-haspopup="true"
+              <Avatar
+                src={
+                  auth.currentUser?.photoURL ??
+                  "https://image.shutterstock.com/image-vector/vector-avatar-icon-260nw-383411185.jpg"
+                }
                 onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
+              />
             ) : (
               <div className="authGroup">
                 <Link to="/login" className="navLink login">
