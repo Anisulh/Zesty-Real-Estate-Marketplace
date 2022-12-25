@@ -1,29 +1,39 @@
-import { AddRounded } from "@mui/icons-material";
-import {
-  Avatar,
-  Button,
-  IconButton,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { Box, Container, Stack } from "@mui/system";
+import AddRounded from "@mui/icons-material/AddRounded";
+import ClearIcon from "@mui/icons-material/Clear";
+import IconButton from "@mui/material/IconButton";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/system/Box";
+import Container from "@mui/system/Container";
+import Stack from "@mui/system/Stack";
 import { getAuth, updateEmail, updateProfile } from "firebase/auth";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import { StatusType } from "../types";
 import Status from "../components/Status";
 import { handleStatusClose } from "../utils/statusHandler";
 import { useNavigate } from "react-router-dom";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+import { uuidv4 } from "@firebase/util";
 
 interface EditProfileType {
   firstName: string;
   lastName: string;
   email: string;
+  picture: File | null;
 }
 
 function Profile() {
   const auth = getAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<StatusType>({
     open: false,
     error: false,
@@ -39,26 +49,43 @@ function Profile() {
     firstName: name?.split(" ")[0] ?? "",
     lastName: name?.split(" ")[1] ?? "",
     email: email ?? "",
+    picture: null,
   });
-  const { firstName, lastName } = editProfileData;
+  const { firstName, lastName, picture } = editProfileData;
+  const [pictureUrl, setPictureUrl] = useState<string | null>(null);
 
-  const onFormChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditProfileData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
+  const onFormChange = (e: any) => {
+    if (e.target.files) {
+      console.log(e.target.files[0]);
+      setEditProfileData((prevState) => ({
+        ...prevState,
+        picture: e.target.files[0],
+      }));
+    } else {
+      setEditProfileData((prevState) => ({
+        ...prevState,
+        [e.target.name]: e.target.value,
+      }));
+    }
   };
 
+  useEffect(() => {
+    if (picture) {
+      setPictureUrl(URL.createObjectURL(picture));
+    }
+  }, [picture]);
   const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(editProfileData);
     if (auth.currentUser) {
+      setLoading(true);
       if (name !== `${firstName} ${lastName}`) {
         try {
           await updateProfile(auth.currentUser, {
             displayName: `${firstName} ${lastName}`,
           });
         } catch (error) {
+          setLoading(false);
           setStatus({
             open: true,
             error: true,
@@ -70,6 +97,65 @@ function Profile() {
         try {
           await updateEmail(auth.currentUser, editProfileData.email);
         } catch (error) {
+          setLoading(false);
+          setStatus({
+            open: true,
+            error: true,
+            message: "Unable to update profile",
+          });
+        }
+      }
+      if (picture !== null) {
+        // Store image in firebase
+        try {
+          const storage = getStorage();
+          const fileName = `${auth.currentUser?.uid}-profileImg-${uuidv4()}`;
+
+          const storageRef = ref(storage, "images/" + fileName);
+
+          const uploadTask = uploadBytesResumable(storageRef, picture);
+
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log("Upload is " + progress + "% done");
+              switch (snapshot.state) {
+                case "paused":
+                  console.log("Upload is paused");
+                  break;
+                case "running":
+                  console.log("Upload is running");
+                  break;
+                default:
+                  break;
+              }
+            },
+            (error) => {
+              setLoading(false);
+              setStatus({
+                open: true,
+                error: true,
+                message: "Unable to update profile",
+              });
+            },
+            () => {
+              // Handle successful uploads on complete
+              // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                console.log(downloadURL);
+                if (auth.currentUser) {
+                  updateProfile(auth.currentUser, { photoURL: downloadURL });
+                  setEditProfile(false);
+                  setLoading(false);
+                  navigate("/profile");
+                }
+              });
+            }
+          );
+        } catch (error) {
+          setLoading(false);
           setStatus({
             open: true,
             error: true,
@@ -78,9 +164,6 @@ function Profile() {
         }
       }
     }
-
-    setEditProfile(false);
-    navigate("/profile");
   };
 
   return (
@@ -100,14 +183,38 @@ function Profile() {
         >
           <form id="profileForm" onSubmit={onFormSubmit}>
             <Stack direction="row" gap={5} alignItems="center" mt={5}>
-              <IconButton
-                aria-label="upload picture"
-                component="label"
-                sx={{ width: 150, height: 150 }}
-              >
-                <AddRounded />
-                <input hidden accept=".jpg,.png,.jpeg" type="file" />
-              </IconButton>
+              {picture && pictureUrl ? (
+                <Box sx={{ position: "relative", p: 1 }}>
+                  <IconButton
+                    size="small"
+                    sx={{ position: "absolute", top: -5, right: -5 }}
+                    onClick={() => {
+                      setEditProfileData((prevState) => ({
+                        ...prevState,
+                        picture: null,
+                      }));
+                    }}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                  <Avatar src={pictureUrl} sx={{ width: 150, height: 150 }} />
+                </Box>
+              ) : (
+                <IconButton
+                  aria-label="upload picture"
+                  component="label"
+                  sx={{ width: 150, height: 150 }}
+                >
+                  <AddRounded />
+                  <input
+                    hidden
+                    accept=".jpg,.png,.jpeg"
+                    type="file"
+                    name="picture"
+                    onChange={onFormChange}
+                  />
+                </IconButton>
+              )}
 
               <Stack direction="column" gap={5}>
                 <Stack direction="row" justifyContent="space-between" gap={5}>
@@ -138,7 +245,18 @@ function Profile() {
             </Stack>
           </form>
           <Stack direction="column" justifyContent="space-between">
-            <Button type="button" onClick={() => setEditProfile(false)}>
+            <Button
+              type="button"
+              onClick={() => {
+                setEditProfile(false);
+                setEditProfileData({
+                  firstName: name?.split(" ")[0] ?? "",
+                  lastName: name?.split(" ")[1] ?? "",
+                  email: email ?? "",
+                  picture: null,
+                });
+              }}
+            >
               Cancel
             </Button>
             <Button type="submit" form="profileForm">
@@ -153,7 +271,13 @@ function Profile() {
           alignItems="start"
         >
           <Stack direction="row" gap={5} alignItems="center">
-            <Avatar sx={{ width: 150, height: 150 }}>
+            <Avatar
+              src={
+                auth.currentUser?.photoURL ??
+                "https://image.shutterstock.com/image-vector/vector-avatar-icon-260nw-383411185.jpg"
+              }
+              sx={{ width: 150, height: 150 }}
+            >
               <IconButton sx={{ width: 150, height: 150 }}>
                 <AddRounded />
               </IconButton>
