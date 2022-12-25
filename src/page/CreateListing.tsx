@@ -114,6 +114,7 @@ function CreateListing() {
   }, [images]);
 
   const [loading, setLoading] = useState(false);
+
   const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -145,7 +146,6 @@ function CreateListing() {
       return;
     }
 
-    // Store image in firebase
     const storeImage = async (image: any) => {
       return new Promise((resolve, reject) => {
         const storage = getStorage();
@@ -185,29 +185,33 @@ function CreateListing() {
         );
       });
     };
+    if (images) {
+      const imgUrls = await Promise.all(
+        [...images].map((image) => storeImage(image))
+      ).catch(() => {
+        setLoading(false);
+        setStatus({ open: true, error: true, message: "Images not uploaded" });
+        return;
+      });
+      const tempListingData = {
+        ...listingData,
+        imgUrls,
+        timestamp: serverTimestamp(),
+      };
 
-    const imgUrls = await Promise.all(
-      [{ ...images }].map((image) => storeImage(image))
-    ).catch(() => {
+      delete tempListingData.images;
+      !tempListingData.offer && delete tempListingData.discountedPrice;
+      console.log(tempListingData.userRef === auth.currentUser?.uid);
+      const docRef = await addDoc(collection(db, "listings"), tempListingData);
+      setLoading(false);
+      navigate(`/listing}/${docRef.id}`);
+    } else {
       setLoading(false);
       setStatus({ open: true, error: true, message: "Images not uploaded" });
       return;
-    });
-
-    const tempListingData = {
-      ...listingData,
-      imgUrls,
-      timestamp: serverTimestamp(),
-    };
-
-    delete tempListingData.images;
-    !tempListingData.offer && delete tempListingData.discountedPrice;
-
-    const docRef = await addDoc(collection(db, "listings"), tempListingData);
-    setLoading(false);
-    setStatus({ open: true, error: false, message: "Listing saved" });
-    navigate(`/listing}/${docRef.id}`);
+    }
   };
+
   const onLoad = (autocomplete: google.maps.places.Autocomplete) => {
     setAutoComplete(autocomplete);
   };
@@ -233,7 +237,6 @@ function CreateListing() {
     }
   };
   const onFormChange = (e: any) => {
-    console.log("changing");
     let boolean: boolean | null = null;
     if (e.target.value === "true") {
       boolean = true;
@@ -442,7 +445,6 @@ function CreateListing() {
               }}
               label="Bedrooms"
               name="bedrooms"
-              id="bedrooms"
               value={bedrooms}
               onChange={onFormChange}
               required
@@ -457,7 +459,7 @@ function CreateListing() {
                 min: 1,
               }}
               label="Bathrooms"
-              id="bathrooms"
+              name="bathrooms"
               value={bathrooms}
               onChange={onFormChange}
               required
@@ -683,7 +685,7 @@ function CreateListing() {
           alignItems="center"
           sx={{ my: 10 }}
         >
-          <Button type="submit" variant="contained">
+          <Button type="submit" variant="contained" disabled={loading}>
             Submit
           </Button>
         </Stack>

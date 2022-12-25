@@ -95,7 +95,7 @@ export interface ListingDataType {
   offer: boolean;
   regularPrice: number;
   discountedPrice?: number;
-  images?: FileList | null;
+  images?: Blob[] | null;
   geoCode: {
     lat: number,
     lng: number
