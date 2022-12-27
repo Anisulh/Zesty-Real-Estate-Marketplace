@@ -36,6 +36,11 @@
   transition: background-size 0.5s;
 }
 
+.mobileLink {
+  text-decoration: none;
+  color: black;
+}
+
 .navLink:hover {
   background-size: 100% 2px;
 }

@@ -2,19 +2,21 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import CreateIcon from "@mui/icons-material/Create";
-import LoginIcon from "@mui/icons-material/Login";
-import MoreIcon from "@mui/icons-material/MoreVert";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
 import { Container } from "@mui/system";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getAuth, signOut } from "firebase/auth";
-import { Avatar } from "@mui/material";
+import { Avatar, Divider, ListItemIcon } from "@mui/material";
+import { Logout } from "@mui/icons-material";
+import VillaIcon from "@mui/icons-material/Villa";
+import { paperPropStyle } from "../styles";
+import SellIcon from "@mui/icons-material/Sell";
+import ApartmentIcon from "@mui/icons-material/Apartment";
+import PersonIcon from "@mui/icons-material/Person";
 
 function Nav() {
   const auth = getAuth();
@@ -53,89 +55,93 @@ function Nav() {
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
       id={menuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
       open={isMenuOpen}
       onClose={handleMenuClose}
+      onClick={handleMenuClose}
+      PaperProps={paperPropStyle}
+      transformOrigin={{ horizontal: "right", vertical: "top" }}
+      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
     >
-      <MenuItem
-        onClick={() => {
-          handleMenuClose();
-          navigate("/profile");
-        }}
-      >
+      <MenuItem onClick={() => navigate("/profile")}>
+        <ListItemIcon>
+          <PersonIcon />
+        </ListItemIcon>
         Profile
       </MenuItem>
-      <MenuItem onClick={onLogout}>Log Out</MenuItem>
+      <MenuItem onClick={() => navigate("/mylistings")}>
+        <ListItemIcon>
+          <VillaIcon fontSize="small" />
+        </ListItemIcon>
+        My Listings
+      </MenuItem>
+      <Divider />
+
+      <MenuItem onClick={onLogout}>
+        <ListItemIcon>
+          <Logout fontSize="small" />
+        </ListItemIcon>
+        Logout
+      </MenuItem>
     </Menu>
   );
 
   const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenu = (
     <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      anchorEl={anchorEl}
+      id="account-menu"
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
+      onClick={handleMobileMenuClose}
+      PaperProps={paperPropStyle}
+      transformOrigin={{ horizontal: "right", vertical: "top" }}
+      anchorOrigin={{ horizontal: "right", vertical: "top" }}
     >
-      {loggedIn ? (
-        <MenuItem onClick={handleProfileMenuOpen}>
-          <IconButton
-            size="large"
-            aria-label="account of current user"
-            aria-controls="primary-search-account-menu"
-            aria-haspopup="true"
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
-          <p>Profile</p>
-        </MenuItem>
-      ) : (
-        <Box>
-          <MenuItem>
-            <IconButton
-              size="large"
-              aria-label="show 4 new mails"
-              color="inherit"
-              onClick={() => navigate("/register")}
-            >
-              <CreateIcon />
-            </IconButton>
-            <p>Register</p>
-          </MenuItem>
-          <MenuItem>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-              onClick={() => navigate("/login")}
-            >
-              <LoginIcon />
-            </IconButton>
-            <p>Login</p>
-          </MenuItem>
-        </Box>
-      )}
+      <MenuItem onClick={() => navigate("/search")}>
+        <ListItemIcon>
+          <VillaIcon fontSize="small" />
+        </ListItemIcon>
+        <p className="mobileLink">
+          Buy
+        </p>
+      </MenuItem>
+      <MenuItem onClick={() => navigate("/create-listing")}>
+        <ListItemIcon>
+          <SellIcon fontSize="small" />
+        </ListItemIcon>
+        <p className="mobileLink">
+          Sell
+        </p>
+      </MenuItem>
+      <MenuItem onClick={() => navigate("/search")}>
+        <ListItemIcon>
+          <ApartmentIcon fontSize="small" />
+        </ListItemIcon>
+        <p className="mobileLink">
+          Rent
+        </p>
+      </MenuItem>
 
-      {/* */}
+      <MenuItem onClick={() => navigate("/profile")}>
+        <ListItemIcon>
+          <PersonIcon />
+        </ListItemIcon>
+        Profile
+      </MenuItem>
+      <MenuItem onClick={() => navigate("/mylistings")}>
+        <ListItemIcon>
+          <VillaIcon fontSize="small" />
+        </ListItemIcon>
+        My Listings
+      </MenuItem>
+      <Divider />
+      <MenuItem onClick={onLogout}>
+        <ListItemIcon>
+          <Logout fontSize="small" />
+        </ListItemIcon>
+        Logout
+      </MenuItem>
     </Menu>
   );
 
@@ -147,11 +153,11 @@ function Nav() {
             Zesty
           </Link>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" }, pl: "85px" }}>
+          <Box sx={{ display: { xs: "none", md: "flex" } }}>
             <Link to={"/search"} className="navLink">
               Buy
             </Link>
-            <Link to={"/search"} className="navLink">
+            <Link to={"/create-listing"} className="navLink">
               Sell
             </Link>
             <Link to={"/search"} className="navLink">
@@ -190,7 +196,7 @@ function Nav() {
               onClick={handleMobileMenuOpen}
               color="inherit"
             >
-              <MoreIcon />
+              <MenuIcon />
             </IconButton>
           </Box>
         </Toolbar>

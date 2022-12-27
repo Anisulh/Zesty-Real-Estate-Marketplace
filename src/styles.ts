@@ -3,13 +3,12 @@ import LinearProgress, {
   linearProgressClasses,
 } from "@mui/material/LinearProgress";
 import { StyledLinearProgressProps } from "./types";
-import { createTheme} from "@mui/material";
+import { createTheme } from "@mui/material";
 import herobg from "./assets/images/herobg.jpg";
 
 import StepConnector, {
   stepConnectorClasses,
 } from "@mui/material/StepConnector";
-
 
 export const StyledLinearProgress = styled(LinearProgress, {
   shouldForwardProp: (prop) => prop !== "progress",
@@ -101,7 +100,6 @@ export const inputStyleOverride = createTheme({
   },
 });
 
-
 export const QontoConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
     top: 10,
@@ -126,28 +124,52 @@ export const QontoConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
-export const QontoStepIconRoot = styled("div")<{ ownerState: { active?: boolean } }>(
-  ({ theme, ownerState }) => ({
-    color:
-      theme.palette.mode === "dark" ? theme.palette.grey[700] : "#eaeaf0",
-    display: "flex",
-    height: 22,
-    alignItems: "center",
-    ...(ownerState.active && {
-      color: "#784af4",
-    }),
-    "& .QontoStepIcon-completedIcon": {
-      color: "#784af4",
-      zIndex: 1,
-      fontSize: 18,
-    },
-    "& .QontoStepIcon-circle": {
-      width: 8,
-      height: 8,
-      borderRadius: "50%",
-      backgroundColor: "currentColor",
-    },
-  })
-);
+export const QontoStepIconRoot = styled("div")<{
+  ownerState: { active?: boolean };
+}>(({ theme, ownerState }) => ({
+  color: theme.palette.mode === "dark" ? theme.palette.grey[700] : "#eaeaf0",
+  display: "flex",
+  height: 22,
+  alignItems: "center",
+  ...(ownerState.active && {
+    color: "#784af4",
+  }),
+  "& .QontoStepIcon-completedIcon": {
+    color: "#784af4",
+    zIndex: 1,
+    fontSize: 18,
+  },
+  "& .QontoStepIcon-circle": {
+    width: 8,
+    height: 8,
+    borderRadius: "50%",
+    backgroundColor: "currentColor",
+  },
+}));
 
-
+export const paperPropStyle = {
+  elevation: 0,
+  sx: {
+    overflow: "visible",
+    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+    mt: 1.5,
+    "& .MuiAvatar-root": {
+      width: 32,
+      height: 32,
+      ml: -0.5,
+      mr: 1,
+    },
+    "&:before": {
+      content: '""',
+      display: "block",
+      position: "absolute",
+      top: 0,
+      right: 14,
+      width: 10,
+      height: 10,
+      bgcolor: "background.paper",
+      transform: "translateY(-50%) rotate(45deg)",
+      zIndex: 0,
+    },
+  },
+};
