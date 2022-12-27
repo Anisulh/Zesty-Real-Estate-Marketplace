@@ -2,17 +2,16 @@ import { LinearProgressProps } from "@mui/material";
 import { DocumentData, FieldValue } from "firebase/firestore";
 import { Dispatch, SetStateAction, SyntheticEvent } from "react";
 
-
 export interface registerUserData {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
   confirmPassword?: string;
-  timestamp?: FieldValue
+  timestamp?: FieldValue;
 }
 
-export interface loginUserData{
+export interface loginUserData {
   email: string;
   password: string;
 }
@@ -29,9 +28,9 @@ export interface loginErrors {
   passwordError: { error: Boolean; message: String };
 }
 
-export interface StatusProps{
+export interface StatusProps {
   status: StatusType;
-  setStatus:Dispatch<SetStateAction<StatusType>>;
+  setStatus: Dispatch<SetStateAction<StatusType>>;
   handleClose: (
     event: SyntheticEvent | Event,
     setStatus: Dispatch<SetStateAction<StatusType>>,
@@ -60,16 +59,16 @@ export interface StyledLinearProgressProps extends LinearProgressProps {
   progress?: number;
 }
 
-export interface SelectedLocationType{
-  lat: number,
-  lng: number
+export interface SelectedLocationType {
+  lat: number;
+  lng: number;
 }
 
-export interface SearchBarProps{
-  setSelected: Dispatch<SetStateAction<SelectedLocationType>>
+export interface SearchBarProps {
+  setSelected: Dispatch<SetStateAction<SelectedLocationType>>;
 }
-export interface MapProps{
-  selected: SelectedLocationType
+export interface MapProps {
+  selected: SelectedLocationType;
 }
 
 export interface ListingDataType {
@@ -82,24 +81,25 @@ export interface ListingDataType {
     | "coop"
     | "apartment"
     | "other";
-  bedrooms: number;
-  bathrooms: number;
-  sqft: number;
-  lotSize: number;
-  yearBuilt: number;
-  lastStructuralRemodel: number;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  sqft: number | null;
+  lotSize: number | null;
+  yearBuilt: number | null;
+  lastStructuralRemodel: number | null;
   parking: boolean;
   furnished: boolean;
-  address: string;
-  description: string;
+  address: string | null;
+  unitNumber?: string | null;
+  description: string | null;
   offer: boolean;
-  regularPrice: number;
-  discountedPrice?: number;
+  regularPrice: number | null;
+  discountedPrice?: number | null;
   images?: Blob[] | null;
   geoCode: {
-    lat: number,
-    lng: number
-  }
+    lat: number;
+    lng: number;
+  };
   userRef?: string;
 }
 export interface ListingType {
@@ -108,5 +108,17 @@ export interface ListingType {
 }
 
 export interface ListingProps {
-  listing: ListingType
+  listing: ListingType;
 }
+
+export interface CreateListingFormProps {
+  listingData: ListingDataType;
+  setListingData?: Dispatch<SetStateAction<ListingDataType>>;
+  onFormChange: (e: any) => void;
+  setStepComplete: Dispatch<SetStateAction<boolean>>;
+  isLoaded?: boolean;
+  imageUrls?: any;
+  setImageUrls?: Dispatch<SetStateAction<string[]>>;
+}
+
+export type Libraries = "places"[];

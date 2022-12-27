@@ -1,91 +1,129 @@
 import Button from "@mui/material/Button";
-import MenuItem from "@mui/material/MenuItem";
-
-import Box from "@mui/system/Box";
 import Container from "@mui/system/Container";
 import Stack from "@mui/system/Stack";
-import { Autocomplete, useLoadScript } from "@react-google-maps/api";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getGeocode, getLatLng } from "use-places-autocomplete";
 import Spinner from "../components/Spinner";
 import Status from "../components/Status";
-import { ListingDataType, StatusType } from "../types";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
-import { uuidv4 } from "@firebase/util";
+import { Libraries, ListingDataType, StatusType } from "../types";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { handleStatusClose } from "../utils/statusHandler";
 import Typography from "@mui/material/Typography";
-import ToggleButton from "@mui/material/ToggleButton";
-import TextField from "@mui/material/TextField";
-import Select from "@mui/material/Select";
-import { IconButton, ImageList, ImageListItem } from "@mui/material";
-import ClearIcon from "@mui/icons-material/Clear";
+import { useLoadScript } from "@react-google-maps/api";
+import IntroForm from "../components/Intro-CreateListing";
+import SpecificationForm from "../components/Specification-CreateListing";
+import DescriptionForm from "../components/Description-CreateListing";
+import { createListingValidation } from "../utils/formValidation";
+import Box from "@mui/system/Box";
+import { StepIconProps } from "@mui/material/StepIcon";
+import Check from "@mui/icons-material/Check";
+import Stepper from "@mui/material/Stepper";
+import Step from "@mui/material/Step";
+import StepLabel from "@mui/material/StepLabel";
+import { QontoConnector, QontoStepIconRoot } from "../styles";
+import { storeImage } from "../utils/UploadImageHandler";
 
+function QontoStepIcon(props: StepIconProps) {
+  const { active, completed, className } = props;
+
+  return (
+    <QontoStepIconRoot ownerState={{ active }} className={className}>
+      {completed ? (
+        <Check className="QontoStepIcon-completedIcon" />
+      ) : (
+        <div className="QontoStepIcon-circle" />
+      )}
+    </QontoStepIconRoot>
+  );
+}
+const steps = ["Introduction", "Specification", "Description"];
 function CreateListing() {
   const navigate = useNavigate();
   const auth = getAuth();
-
-  const isMounted = useRef(true);
+  const [libraries] = useState<Libraries>(["places"]);
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_MAPS_API_KEY,
-    libraries: ["places"],
+    libraries: libraries,
   });
-  const [autoComplete, setAutoComplete] =
-    useState<google.maps.places.Autocomplete | null>(null);
+  const isMounted = useRef(true);
   const [status, setStatus] = useState<StatusType>({
     open: false,
     error: false,
     message: "",
   });
+  const [step, setStep] = useState<number>(0);
+  const [stepComplete, setStepComplete] = useState<boolean>(false);
+  const currentFormStep = () => {
+    switch (step) {
+      case 0:
+        return (
+          <IntroForm
+            listingData={listingData}
+            onFormChange={onFormChange}
+            setStepComplete={setStepComplete}
+            setListingData={setListingData}
+          />
+        );
+      case 1:
+        return (
+          <SpecificationForm
+            listingData={listingData}
+            setListingData={setListingData}
+            onFormChange={onFormChange}
+            setStepComplete={setStepComplete}
+          />
+        );
+      case 2:
+        return (
+          <DescriptionForm
+            listingData={listingData}
+            imageUrls={imageUrls}
+            setImageUrls={setImageUrls}
+            onFormChange={onFormChange}
+            setStepComplete={setStepComplete}
+          />
+        );
+
+      default:
+        return (
+          <IntroForm
+            listingData={listingData}
+            onFormChange={onFormChange}
+            setStepComplete={setStepComplete}
+            setListingData={setListingData}
+          />
+        );
+    }
+  };
+
   const [listingData, setListingData] = useState<ListingDataType>({
     type: "sell",
     homeType: "singleFamily",
-    bedrooms: 1,
-    bathrooms: 1,
-    sqft: 0,
-    lotSize: 0,
-    yearBuilt: 2000,
-    lastStructuralRemodel: 2010,
+    bedrooms: null,
+    bathrooms: null,
+    sqft: null,
+    lotSize: null,
+    yearBuilt: null,
+    lastStructuralRemodel: null,
     parking: false,
     furnished: false,
-    address: "",
-    description: "",
+    address: null,
+    unitNumber: null,
+    description: null,
     offer: false,
-    regularPrice: 0,
-    discountedPrice: 0,
+    regularPrice: null,
+    discountedPrice: null,
     images: null,
     geoCode: {
       lat: 0,
       lng: 0,
     },
   });
-  const {
-    type,
-    homeType,
-    bedrooms,
-    bathrooms,
-    sqft,
-    lotSize,
-    yearBuilt,
-    lastStructuralRemodel,
-    parking,
-    furnished,
-    offer,
-    regularPrice,
-    description,
-    discountedPrice,
-    images,
-    address,
-    geoCode,
-  } = listingData;
+  const { regularPrice, discountedPrice, images, geoCode, unitNumber } =
+    listingData;
+  const { lat, lng } = geoCode;
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   useEffect(() => {
     if (isMounted) {
@@ -118,79 +156,25 @@ function CreateListing() {
   const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    if (discountedPrice && discountedPrice >= regularPrice) {
-      setLoading(false);
-      setStatus({
-        open: true,
-        error: true,
-        message: "Offer price is higher or equal to regular price",
-      });
-      return;
-    }
-    if (images?.length && images?.length > 6) {
-      setLoading(false);
-      setStatus({
-        open: true,
-        error: true,
-        message: "There can only a max of 6 images",
-      });
-      return;
-    }
-    if (listingData.geoCode.lat === 0 || listingData.geoCode.lng === 0) {
-      setLoading(false);
-      setStatus({
-        open: true,
-        error: true,
-        message: "Address not entered, try again",
-      });
-      return;
-    }
-
-    const storeImage = async (image: any) => {
-      return new Promise((resolve, reject) => {
-        const storage = getStorage();
-        const fileName = `${auth.currentUser?.uid}-${image.name}-${uuidv4()}`;
-
-        const storageRef = ref(storage, "images/" + fileName);
-
-        const uploadTask = uploadBytesResumable(storageRef, image);
-
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log("Upload is " + progress + "% done");
-            switch (snapshot.state) {
-              case "paused":
-                console.log("Upload is paused");
-                break;
-              case "running":
-                console.log("Upload is running");
-                break;
-              default:
-                break;
-            }
-          },
-          (error) => {
-            reject(error);
-          },
-          () => {
-            // Handle successful uploads on complete
-            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              resolve(downloadURL);
-            });
-          }
-        );
-      });
-    };
-    if (images) {
+    const validated = createListingValidation(
+      discountedPrice,
+      regularPrice,
+      images,
+      lat,
+      lng,
+      setLoading,
+      setStatus
+    );
+    if (validated && images) {
       const imgUrls = await Promise.all(
-        [...images].map((image) => storeImage(image))
+        [...images].map((image) => storeImage(auth, image))
       ).catch(() => {
         setLoading(false);
-        setStatus({ open: true, error: true, message: "Images not uploaded" });
+        setStatus({
+          open: true,
+          error: true,
+          message: "Images not uploaded",
+        });
         return;
       });
       const tempListingData = {
@@ -201,41 +185,21 @@ function CreateListing() {
 
       delete tempListingData.images;
       !tempListingData.offer && delete tempListingData.discountedPrice;
-      console.log(tempListingData.userRef === auth.currentUser?.uid);
+      !tempListingData.unitNumber && delete tempListingData.unitNumber;
       const docRef = await addDoc(collection(db, "listings"), tempListingData);
       setLoading(false);
-      navigate(`/listing}/${docRef.id}`);
+      navigate(`/listing/${docRef.id}`);
     } else {
       setLoading(false);
-      setStatus({ open: true, error: true, message: "Images not uploaded" });
+      setStatus({
+        open: true,
+        error: true,
+        message: "Unable to upload listings",
+      });
       return;
     }
   };
 
-  const onLoad = (autocomplete: google.maps.places.Autocomplete) => {
-    setAutoComplete(autocomplete);
-  };
-
-  const onPlaceChanged = async () => {
-    if (autoComplete !== null) {
-      const address = autoComplete.getPlace().formatted_address;
-      if (address) {
-        const input: google.maps.GeocoderRequest = { address };
-        const results = await getGeocode(input);
-        const { lat, lng } = await getLatLng(results[0]);
-        setListingData((prevState) => ({
-          ...prevState,
-          address,
-          geoCode: {
-            lat,
-            lng,
-          },
-        }));
-      }
-    } else {
-      console.log("autocomplete is not loaded yet");
-    }
-  };
   const onFormChange = (e: any) => {
     let boolean: boolean | null = null;
     if (e.target.value === "true") {
@@ -263,7 +227,7 @@ function CreateListing() {
   }
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="xl">
       {status && (
         <Status
           status={status}
@@ -271,423 +235,66 @@ function CreateListing() {
           handleClose={handleStatusClose}
         />
       )}
-      <Typography variant="h4" component="h2" sx={{ fontWeight: "bold" }}>
-        Create Listing
-      </Typography>
+      <Box>
+        <Typography
+          variant="h4"
+          component="h2"
+          sx={{ fontWeight: "bold", ml: 3 }}
+        >
+          Create Listing
+        </Typography>
+        <Stepper
+          alternativeLabel
+          activeStep={step}
+          connector={<QontoConnector />}
+        >
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      </Box>
+
       <form onSubmit={onFormSubmit}>
-        <Typography variant="h6" component="h3">
-          Sell or Rent?
-        </Typography>
-        <Stack
-          direction="row"
-          justifyContent="space-evenly"
-          alignItems="center"
-        >
-          <ToggleButton
-            name="type"
-            color="primary"
-            size="large"
-            value="sell"
-            onChange={(e) => onFormChange(e)}
-            selected={type === "sell" ? true : false}
-          >
-            Sell
-          </ToggleButton>
-          <ToggleButton
-            name="type"
-            value="rent"
-            color="primary"
-            size="large"
-            selected={type === "rent" ? true : false}
-            onChange={(e) => onFormChange(e)}
-          >
-            Rent
-          </ToggleButton>
-        </Stack>
-        <Typography variant="h6" component="h3">
-          Address
-        </Typography>
-        <Stack
-          direction="column"
-          justifyContent="center"
-          alignItems="center"
-          spacing={4}
-        >
-          <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-            <TextField
-              sx={{ width: "400px", margin: "5px" }}
-              type="text"
-              name="address"
-              label="Address"
-              placeholder="Address"
-              onChange={onFormChange}
-              required
-            />
-          </Autocomplete>
-          <TextField
-            sx={{ width: "400px", margin: "5px" }}
-            type="text"
-            name="unitNumber"
-            label="Unit Number"
-            id="unitNumber"
-            onChange={onFormChange}
-            placeholder="Unit # (optional)"
-          />
-        </Stack>
-        <Stack direction="row" justifyContent="center" alignItems="center">
-          <TextField
-            sx={{ width: "400px", margin: "5px", marginBottom: "30px" }}
-            inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-            label={type === "rent" ? "Price per Month" : "Price"}
-            placeholder="1,000,000"
-            name="regularPrice"
-            id="regularPrice"
-            value={regularPrice}
-            onChange={onFormChange}
-            required
-          />
-        </Stack>
-        <Typography variant="h6" component="h3">
-          Any Offer or Discount?
-        </Typography>
-        <Stack
-          direction="row"
-          justifyContent="space-evenly"
-          alignItems="center"
-        >
-          <ToggleButton
-            name="offer"
-            selected={offer}
-            value={"true"}
-            onChange={(e) => onFormChange(e)}
-            size="large"
-            color="primary"
-          >
-            Yes
-          </ToggleButton>
-          <ToggleButton
-            name="offer"
-            selected={!offer}
-            value={"false"}
-            onChange={(e) => onFormChange(e)}
-            size="large"
-            color="primary"
-          >
-            No
-          </ToggleButton>
-        </Stack>
-        {offer && (
-          <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            sx={{ mt: 2 }}
-          >
-            <TextField
-              sx={{ width: "400px", margin: "5px", marginBottom: "30px" }}
-              inputProps={{
-                inputMode: "numeric",
-                pattern: "[0-9]*",
-                min: 50,
-                max: 100000000000000,
-              }}
-              label={type === "rent" ? "Offer Price per Month" : "Offer Price"}
-              name="discountedPrice"
-              id="discountedPrice"
-              value={discountedPrice}
-              onChange={onFormChange}
-              required={offer}
-            />
-          </Stack>
-        )}
-        <Typography variant="h6" component="h3">
-          What type of home is it?
-        </Typography>
-        <Stack
-          direction="row"
-          justifyContent="space-evenly"
-          alignItems="center"
-        >
-          <Select
-            sx={{ width: "400px", margin: "5px", marginBottom: "30px" }}
-            displayEmpty
-            label="heloow"
-            name="homeType"
-            value={homeType}
-            onChange={onFormChange}
-          >
-            <MenuItem value="singleFamily">Single Family</MenuItem>
-            <MenuItem value="condo">Condo</MenuItem>
-            <MenuItem value="multiFamily">Multi Family</MenuItem>
-            <MenuItem value="townhouse">Townhouse</MenuItem>
-            <MenuItem value="coop">Co-Op Unit</MenuItem>
-            <MenuItem value="apartment">Apartment</MenuItem>
-            <MenuItem value="other">Other</MenuItem>
-          </Select>
-        </Stack>
-
-        <div>
-          <Typography variant="h6" component="h3">
-            Number of rooms?
-          </Typography>
-          <Stack
-            direction="row"
-            justifyContent="space-evenly"
-            alignItems="center"
-          >
-            <TextField
-              sx={{ width: "100px", margin: "5px", marginBottom: "30px" }}
-              inputProps={{
-                inputMode: "numeric",
-                pattern: "[0-9]*",
-                max: 50,
-                min: 1,
-              }}
-              label="Bedrooms"
-              name="bedrooms"
-              value={bedrooms}
-              onChange={onFormChange}
-              required
-            />
-
-            <TextField
-              sx={{ width: "100px", margin: "5px", marginBottom: "30px" }}
-              inputProps={{
-                inputMode: "numeric",
-                pattern: "[0-9]*",
-                max: 50,
-                min: 1,
-              }}
-              label="Bathrooms"
-              name="bathrooms"
-              value={bathrooms}
-              onChange={onFormChange}
-              required
-            />
-          </Stack>
-        </div>
-        <Typography variant="h6" component="h3">
-          When was it built and remodeled?
-        </Typography>
-        <Stack
-          direction="row"
-          justifyContent="space-evenly"
-          alignItems="center"
-        >
-          <TextField
-            sx={{ width: "100px", margin: "5px", marginBottom: "30px" }}
-            inputProps={{
-              inputMode: "numeric",
-              pattern: "[0-9]*",
-              max: new Date().getFullYear(),
-              min: 1,
-            }}
-            label="Year Built:"
-            name="yearBuilt"
-            id="yearBuilt"
-            value={yearBuilt}
-            onChange={onFormChange}
-            required
-          />
-
-          <TextField
-            sx={{ width: "100px", margin: "5px", marginBottom: "30px" }}
-            inputProps={{
-              inputMode: "numeric",
-              pattern: "[0-9]*",
-              max: new Date().getFullYear(),
-              min: 1,
-            }}
-            label="Last Structural Remodel:"
-            name="lastStructuralRemodel"
-            id="lastStructuralRemodel"
-            value={lastStructuralRemodel}
-            onChange={onFormChange}
-            required
-          />
-        </Stack>
-        <Typography variant="h6" component="h3">
-          How large is the home?
-        </Typography>
-        <Stack
-          direction="row"
-          justifyContent="space-evenly"
-          alignItems="center"
-        >
-          <TextField
-            sx={{ width: "100px", margin: "5px", marginBottom: "30px" }}
-            inputProps={{
-              inputMode: "numeric",
-              pattern: "[0-9]*",
-              max: new Date().getFullYear(),
-              min: 1,
-            }}
-            label="Sqft:"
-            name="sqft"
-            value={sqft}
-            onChange={onFormChange}
-            required
-          />
-          {homeType === "singleFamily" ||
-          homeType === "multiFamily" ||
-          homeType === "townhouse" ? (
-            <TextField
-              sx={{ width: "100px", margin: "5px", marginBottom: "30px" }}
-              inputProps={{
-                inputMode: "numeric",
-                pattern: "[0-9]*",
-                max: new Date().getFullYear(),
-                min: 1,
-              }}
-              label="Lot Size:"
-              name="lotSize"
-              value={lotSize}
-              onChange={onFormChange}
-              required
-            />
-          ) : (
-            <></>
-          )}
-        </Stack>
-        <Typography variant="h6" component="h3">
-          Private parking?
-        </Typography>
-        <Stack
-          direction="row"
-          justifyContent="space-evenly"
-          alignItems="center"
-        >
-          <ToggleButton
-            name="parking"
-            selected={parking}
-            value={true}
-            onChange={(e) => onFormChange(e)}
-            size="large"
-            color="primary"
-          >
-            Yes
-          </ToggleButton>
-          <ToggleButton
-            name="parking"
-            selected={!parking}
-            value={false}
-            onChange={(e) => onFormChange(e)}
-            size="large"
-            color="primary"
-          >
-            No
-          </ToggleButton>
-        </Stack>
-        <Typography variant="h6" component="h3">
-          Already furnished?
-        </Typography>
-        <Stack
-          direction="row"
-          justifyContent="space-evenly"
-          alignItems="center"
-        >
-          <ToggleButton
-            name="furnished"
-            selected={furnished}
-            value={true}
-            onChange={(e) => onFormChange(e)}
-            size="large"
-            color="primary"
-          >
-            Yes
-          </ToggleButton>
-          <ToggleButton
-            name="furnished"
-            selected={!furnished}
-            value={false}
-            onChange={(e) => onFormChange(e)}
-            size="large"
-            color="primary"
-          >
-            No
-          </ToggleButton>
-        </Stack>
-        <Typography variant="h6" component="h3">
-          Description:
-        </Typography>
-        <Stack direction="row" justifyContent="center" alignItems="center">
-          <TextField
-            sx={{ width: "400px", margin: "5px", marginBottom: "30px" }}
-            multiline
-            label="Description"
-            name="description"
-            onChange={onFormChange}
-            value={description}
-            required
-          />
-        </Stack>
-
-        <Box mb={5}>
-          <Typography variant="h6" component="h3">
-            Images:
-          </Typography>
-          <Typography variant="body1" component="p">
-            The first image will be the cover (max 6).
-          </Typography>
-
-          <Button variant="contained" component="label">
-            Upload
-            <input
-              hidden
-              type="file"
-              name="images"
-              onChange={onFormChange}
-              max={6}
-              accept=".jpg,.png,.jpeg"
-              multiple
-              required
-            />
-          </Button>
-          <Box>
-            <ImageList
-              sx={{ width: 500, height: 450 }}
-              cols={3}
-              gap={5}
-              rowHeight={164}
-            >
-              {imageUrls?.map((item) => (
-                <ImageListItem key={item} sx={{ position: "relative" }}>
-                  <IconButton
-                    onClick={() => {
-                      const index = imageUrls.findIndex(
-                        (image) => image === item
-                      );
-                      if (index > -1) {
-                        setImageUrls((prevState) =>
-                          [...prevState].filter((image) => image !== item)
-                        );
-                      }
-                    }}
-                    size="small"
-                    sx={{
-                      position: "absolute",
-                      right: 0,
-                      backgroundColor: "gray",
-                      p: 0,
-                    }}
-                  >
-                    <ClearIcon sx={{ color: "white" }} />
-                  </IconButton>
-                  <img src={item} loading="lazy" />
-                </ImageListItem>
-              ))}
-            </ImageList>
-          </Box>
-        </Box>
+        {currentFormStep()}
         <Stack
           direction="row"
           justifyContent="space-evenly"
           alignItems="center"
           sx={{ my: 10 }}
         >
-          <Button type="submit" variant="contained" disabled={loading}>
-            Submit
-          </Button>
+          {step > 0 && step < 3 && (
+            <Button
+              type="button"
+              variant="contained"
+              onClick={() => {
+                console.log(step);
+                setStep((prevStep) => prevStep - 1);
+              }}
+            >
+              Back
+            </Button>
+          )}
+          {step !== 2 ? (
+            <Button
+              type="button"
+              variant="contained"
+              onClick={() => {
+                if (stepComplete) {
+                  setStep((prevStep) => prevStep + 1);
+                  setStepComplete(false);
+                }
+              }}
+              disabled={!stepComplete}
+            >
+              Next
+            </Button>
+          ) : (
+            <Button type="submit" variant="contained" disabled={loading}>
+              Submit
+            </Button>
+          )}
         </Stack>
       </form>
     </Container>
