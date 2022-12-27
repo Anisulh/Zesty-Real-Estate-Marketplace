@@ -22,8 +22,13 @@ import Check from "@mui/icons-material/Check";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
-import { QontoConnector, QontoStepIconRoot } from "../styles";
+import {
+  createListingTheme,
+  QontoConnector,
+  QontoStepIconRoot,
+} from "../styles";
 import { storeImage } from "../utils/UploadImageHandler";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 function QontoStepIcon(props: StepIconProps) {
   const { active, completed, className } = props;
@@ -227,77 +232,79 @@ function CreateListing() {
   }
 
   return (
-    <Container maxWidth="xl">
-      {status && (
-        <Status
-          status={status}
-          setStatus={setStatus}
-          handleClose={handleStatusClose}
-        />
-      )}
-      <Box>
-        <Typography
-          variant="h4"
-          component="h2"
-          sx={{ fontWeight: "bold", ml: 3 }}
-        >
-          Create Listing
-        </Typography>
-        <Stepper
-          alternativeLabel
-          activeStep={step}
-          connector={<QontoConnector />}
-        >
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      </Box>
+    <ThemeProvider theme={createListingTheme}>
+      <Container maxWidth="xl">
+        {status && (
+          <Status
+            status={status}
+            setStatus={setStatus}
+            handleClose={handleStatusClose}
+          />
+        )}
+        <Box>
+          <Typography
+            variant="h4"
+            component="h2"
+            sx={{ fontWeight: "bold", ml: 3 }}
+          >
+            Create Listing
+          </Typography>
+          <Stepper
+            alternativeLabel
+            activeStep={step}
+            connector={<QontoConnector />}
+          >
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
 
-      <form onSubmit={onFormSubmit}>
-        {currentFormStep()}
-        <Stack
-          direction="row"
-          justifyContent="space-evenly"
-          alignItems="center"
-          sx={{ my: 10 }}
-        >
-          {step > 0 && step < 3 && (
-            <Button
-              type="button"
-              variant="contained"
-              onClick={() => {
-                console.log(step);
-                setStep((prevStep) => prevStep - 1);
-              }}
-            >
-              Back
-            </Button>
-          )}
-          {step !== 2 ? (
-            <Button
-              type="button"
-              variant="contained"
-              onClick={() => {
-                if (stepComplete) {
-                  setStep((prevStep) => prevStep + 1);
-                  setStepComplete(false);
-                }
-              }}
-              disabled={!stepComplete}
-            >
-              Next
-            </Button>
-          ) : (
-            <Button type="submit" variant="contained" disabled={loading}>
-              Submit
-            </Button>
-          )}
-        </Stack>
-      </form>
-    </Container>
+        <form onSubmit={onFormSubmit}>
+          {currentFormStep()}
+          <Stack
+            direction="row"
+            justifyContent="space-evenly"
+            alignItems="center"
+            sx={{ my: 10 }}
+          >
+            {step > 0 && step < 3 && (
+              <Button
+                type="button"
+                variant="contained"
+                onClick={() => {
+                  console.log(step);
+                  setStep((prevStep) => prevStep - 1);
+                }}
+              >
+                Back
+              </Button>
+            )}
+            {step !== 2 ? (
+              <Button
+                type="button"
+                variant="contained"
+                onClick={() => {
+                  if (stepComplete) {
+                    setStep((prevStep) => prevStep + 1);
+                    setStepComplete(false);
+                  }
+                }}
+                disabled={!stepComplete}
+              >
+                Next
+              </Button>
+            ) : (
+              <Button type="submit" variant="contained" disabled={loading}>
+                Submit
+              </Button>
+            )}
+          </Stack>
+        </form>
+      </Container>
+    </ThemeProvider>
   );
 }
 

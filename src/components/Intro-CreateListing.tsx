@@ -77,7 +77,6 @@ function IntroForm(props: CreateListingFormProps) {
             value="sell"
             onChange={(e) => onFormChange(e)}
             selected={type === "sell" ? true : false}
-            sx={{ borderRadius: "10px", py: 1, px: 2 }}
           >
             Sell
           </ToggleButton>
@@ -88,7 +87,6 @@ function IntroForm(props: CreateListingFormProps) {
             size="large"
             selected={type === "rent" ? true : false}
             onChange={(e) => onFormChange(e)}
-            sx={{ borderRadius: "10px", py: 1, px: 2 }}
           >
             Rent
           </ToggleButton>
@@ -105,7 +103,6 @@ function IntroForm(props: CreateListingFormProps) {
           <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
             <TextField
               className="input"
-              sx={{ width: "400px", margin: "5px" }}
               type="text"
               name="address"
               label="Address"
@@ -117,7 +114,6 @@ function IntroForm(props: CreateListingFormProps) {
           {type === "rent" && (
             <TextField
               className="input"
-              sx={{ width: "400px", margin: "5px" }}
               type="text"
               name="unitNumber"
               label="Unit Number"
@@ -156,7 +152,6 @@ function IntroForm(props: CreateListingFormProps) {
             onChange={(e) => onFormChange(e)}
             size="large"
             color="primary"
-            sx={{ borderRadius: "10px", py: 1, px: 2 }}
           >
             Yes
           </ToggleButton>
@@ -167,7 +162,6 @@ function IntroForm(props: CreateListingFormProps) {
             onChange={(e) => onFormChange(e)}
             size="large"
             color="primary"
-            sx={{ borderRadius: "10px", py: 1, px: 2 }}
           >
             No
           </ToggleButton>

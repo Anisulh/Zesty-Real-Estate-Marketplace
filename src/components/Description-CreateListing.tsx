@@ -41,7 +41,6 @@ function DescriptionForm(props: CreateListingFormProps) {
         <Stack direction="row" justifyContent="center" alignItems="center">
           <TextField
             className="input"
-            sx={{ width: "400px", margin: "5px", marginBottom: "30px" }}
             multiline
             label="Description"
             name="description"
@@ -80,11 +79,7 @@ function DescriptionForm(props: CreateListingFormProps) {
 
           <Box>
             {imageUrls && (
-              <ImageList
-                sx={{ width: 500, height: 300 }}
-                cols={3}
-                rowHeight={164}
-              >
+              <ImageList cols={3} rowHeight={164}>
                 {imageUrls.map((item: string) => (
                   <ImageListItem key={item} sx={{ position: "relative" }}>
                     <IconButton

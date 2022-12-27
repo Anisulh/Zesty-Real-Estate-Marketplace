@@ -68,7 +68,7 @@ function SpecificationForm(props: CreateListingFormProps) {
         >
           <Select
             className="input"
-            sx={{ width: "400px", margin: "5px", marginBottom: "30px" }}
+            sx={{ marginBottom: "30px" }}
             displayEmpty
             label="heloow"
             name="homeType"
@@ -223,7 +223,6 @@ function SpecificationForm(props: CreateListingFormProps) {
           alignItems="center"
         >
           <ToggleButton
-            sx={{ borderRadius: "10px", py: 1, px: 2 }}
             name="parking"
             selected={parking}
             value={true}
@@ -234,7 +233,6 @@ function SpecificationForm(props: CreateListingFormProps) {
             Yes
           </ToggleButton>
           <ToggleButton
-            sx={{ borderRadius: "10px", py: 1, px: 2 }}
             name="parking"
             selected={!parking}
             value={false}
@@ -254,7 +252,6 @@ function SpecificationForm(props: CreateListingFormProps) {
           alignItems="center"
         >
           <ToggleButton
-            sx={{ borderRadius: "10px", py: 1, px: 2 }}
             name="furnished"
             selected={furnished}
             value={true}
@@ -265,7 +262,6 @@ function SpecificationForm(props: CreateListingFormProps) {
             Yes
           </ToggleButton>
           <ToggleButton
-            sx={{ borderRadius: "10px", py: 1, px: 2 }}
             name="furnished"
             selected={!furnished}
             value={false}

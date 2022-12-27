@@ -173,3 +173,44 @@ export const paperPropStyle = {
     },
   },
 };
+
+export const createListingTheme = createTheme({
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          width: "400px",
+          margin: "5px",
+          marginBottom: "30px",
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          width: "400px",
+          margin: "5px",
+          marginBottom: "30px",
+        },
+      },
+    },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: "10px",
+          paddingTop: 10,
+          paddingBottom: 10,
+          paddingInline: 20,
+        },
+      },
+    },
+    MuiImageList: {
+      styleOverrides: {
+        root: {
+          width: "500px",
+          height: "300px",
+        },
+      },
+    },
+  },
+});
