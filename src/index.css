@@ -17,7 +17,7 @@
   height: 100vh;
   border-radius: 10px;
 }
-.logo{
+.logo {
   text-decoration: none;
   color: black;
   font-weight: 700;
@@ -45,25 +45,25 @@
   background-size: 100% 2px;
 }
 
-.authGroup  {
+.authGroup {
   background-color: lightgray;
   border-radius: 40px;
   display: flex;
   align-items: center;
 }
 .register {
-  color:white;
+  color: white;
   background-image: none;
 }
-.login{
+.login {
   background-image: none;
 }
-.authGroup-register{
+.authGroup-register {
   background-color: rgb(32, 32, 32);
   color: white;
-  padding: 5px 0 ;
+  padding: 5px 0;
   border-radius: 40px;
 }
-.input fieldset{
+.input fieldset {
   border-radius: 10px;
 }

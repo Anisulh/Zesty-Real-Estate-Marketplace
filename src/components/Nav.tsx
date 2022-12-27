@@ -102,25 +102,19 @@ function Nav() {
         <ListItemIcon>
           <VillaIcon fontSize="small" />
         </ListItemIcon>
-        <p className="mobileLink">
-          Buy
-        </p>
+        <p className="mobileLink">Buy</p>
       </MenuItem>
       <MenuItem onClick={() => navigate("/create-listing")}>
         <ListItemIcon>
           <SellIcon fontSize="small" />
         </ListItemIcon>
-        <p className="mobileLink">
-          Sell
-        </p>
+        <p className="mobileLink">Sell</p>
       </MenuItem>
       <MenuItem onClick={() => navigate("/search")}>
         <ListItemIcon>
           <ApartmentIcon fontSize="small" />
         </ListItemIcon>
-        <p className="mobileLink">
-          Rent
-        </p>
+        <p className="mobileLink">Rent</p>
       </MenuItem>
 
       <MenuItem onClick={() => navigate("/profile")}>
