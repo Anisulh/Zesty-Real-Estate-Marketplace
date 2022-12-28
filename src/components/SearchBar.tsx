@@ -6,13 +6,17 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Button from "@mui/material/Button";
 import TuneIcon from "@mui/icons-material/Tune";
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { getGeocode, getLatLng } from "use-places-autocomplete";
 import { SearchBarProps } from "../types";
 import { Autocomplete } from "@react-google-maps/api";
 import TextField from "@mui/material/TextField";
+import { Select, SelectChangeEvent } from "@mui/material";
 
 export default function SearchBar(props: SearchBarProps) {
+  const { setSelected, searchQueries, setSearchQueries } = props;
+  const { type, homeType } = searchQueries;
+
   const [autoComplete, setAutoComplete] =
     useState<google.maps.places.Autocomplete | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -47,10 +51,17 @@ export default function SearchBar(props: SearchBarProps) {
       console.log(address);
       const results = await getGeocode({ address });
       const { lat, lng } = await getLatLng(results[0]);
-      props.setSelected({ lat, lng });
+      setSelected({ lat, lng });
     } else {
       console.log("autocomplete is not loaded yet");
     }
+  };
+
+  const onFormChange = (e: SelectChangeEvent) => {
+    setSearchQueries((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const mobileMenuId = "primary-search-account-menu-mobile";
@@ -93,11 +104,35 @@ export default function SearchBar(props: SearchBarProps) {
           </Autocomplete>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <form onSubmit={onFormSubmit}>
-              <Button type="submit" variant="contained" size="small">
-                Filter
-              </Button>
-            </form>
+            <Select
+              className="input"
+              sx={{ marginBottom: "30px" }}
+              displayEmpty
+              label="Type"
+              name="type"
+              value={type}
+              onChange={onFormChange}
+            >
+              <MenuItem value="sale">Sale</MenuItem>
+              <MenuItem value="rent">Rent</MenuItem>
+            </Select>
+            <Select
+              className="input"
+              sx={{ marginBottom: "30px" }}
+              displayEmpty
+              label="Home Type"
+              name="homeType"
+              value={homeType}
+              onChange={onFormChange}
+            >
+              <MenuItem value="singleFamily">Single Family</MenuItem>
+              <MenuItem value="condo">Condo</MenuItem>
+              <MenuItem value="multiFamily">Multi Family</MenuItem>
+              <MenuItem value="townhouse">Townhouse</MenuItem>
+              <MenuItem value="coop">Co-Op Unit</MenuItem>
+              <MenuItem value="apartment">Apartment</MenuItem>
+              <MenuItem value="other">Other</MenuItem>
+            </Select>
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton

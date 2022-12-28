@@ -7,7 +7,12 @@ import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
 import { Container } from "@mui/system";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getAuth, signOut } from "firebase/auth";
 import { Avatar, Divider, ListItemIcon } from "@mui/material";
@@ -21,6 +26,8 @@ import PersonIcon from "@mui/icons-material/Person";
 function Nav() {
   const auth = getAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const { loggedIn } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
@@ -98,7 +105,7 @@ function Nav() {
       transformOrigin={{ horizontal: "right", vertical: "top" }}
       anchorOrigin={{ horizontal: "right", vertical: "top" }}
     >
-      <MenuItem onClick={() => navigate("/search")}>
+      <MenuItem onClick={() => navigate("/search?type=sale")}>
         <ListItemIcon>
           <VillaIcon fontSize="small" />
         </ListItemIcon>
@@ -110,7 +117,7 @@ function Nav() {
         </ListItemIcon>
         <p className="mobileLink">Sell</p>
       </MenuItem>
-      <MenuItem onClick={() => navigate("/search")}>
+      <MenuItem onClick={() => navigate("/search?type=rent")}>
         <ListItemIcon>
           <ApartmentIcon fontSize="small" />
         </ListItemIcon>
@@ -148,15 +155,15 @@ function Nav() {
           </Link>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <Link to={"/search"} className="navLink">
+            <a href={"/search?type=sale"} className="navLink">
               Buy
-            </Link>
-            <Link to={"/create-listing"} className="navLink">
+            </a>
+            <a href={"/create-listing"} className="navLink">
               Sell
-            </Link>
-            <Link to={"/search"} className="navLink">
+            </a>
+            <a href={"/search?type=rent"} className="navLink">
               Rent
-            </Link>
+            </a>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>

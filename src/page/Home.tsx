@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useEffect } from "react";
-import { ListingType, StatusType } from "../types";
+import { Libraries, ListingType, StatusType } from "../types";
 import Box from "@mui/system/Box";
 import Container from "@mui/system/Container";
 import Stack from "@mui/system/Stack";
@@ -26,6 +26,7 @@ import { heroBG, inputStyleOverride } from "../styles";
 
 function Home() {
   const navigate = useNavigate();
+  const [libraries] = useState<Libraries>(["places"]);
   const [rentListings, setRentListings] = useState<ListingType[]>([]);
   const [saleListings, setSaleListings] = useState<ListingType[]>([]);
   const [status, setStatus] = useState<StatusType>({
@@ -36,7 +37,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_MAPS_API_KEY,
-    libraries: ["places"],
+    libraries: libraries,
   });
   const [autoComplete, setAutoComplete] =
     useState<google.maps.places.Autocomplete | null>(null);

@@ -9,10 +9,11 @@ import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import SquareFootIcon from "@mui/icons-material/SquareFoot";
 import { ListingProps } from "../types";
-import house from "../assets/images/house.jpg";
 import { Box } from "@mui/system";
 
 function ListingCard(props: ListingProps) {
+  const { listing } = props;
+  const { id, data } = listing;
   const [favorite, setFavorite] = useState(false);
   return (
     <Box sx={{ position: "relative" }}>
@@ -21,20 +22,33 @@ function ListingCard(props: ListingProps) {
           <CardMedia
             component="img"
             height="175"
-            image={house}
+            image={data.imgUrls[0]}
             alt="house"
             sx={{ borderRadius: "20px" }}
           />
           <CardContent sx={{ pt: 0, px: 1 }}>
-            <Typography variant="h6" component="div" sx={{ fontSize: "25px" }}>
-              $699,999
-            </Typography>
-            <Typography variant="body1" component="p">
-              11635 155th Street
-            </Typography>
-            <Typography variant="body1" component="p" sx={{ fontSize: "14px" }}>
-              Jamaica, NY 11434
-            </Typography>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography
+                variant="h6"
+                component="div"
+                sx={{ fontSize: "25px" }}
+              >
+                ${Intl.NumberFormat("en-US").format(data.regularPrice)}
+              </Typography>
+              <Box pt={"5px"} sx={{ textAlign: "right" }}>
+                <Typography variant="body1" component="p" fontWeight={"medium"}>
+                  {data.address.substring(0, data.address.indexOf(","))}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  component="p"
+                  sx={{ fontSize: "14px" }}
+                >
+                  {data.address.substring(data.address.indexOf(",") + 1)}
+                </Typography>
+              </Box>
+            </Stack>
+
             <Typography
               variant="h6"
               sx={{
@@ -65,7 +79,7 @@ function ListingCard(props: ListingProps) {
                 left: 60,
               }}
             >
-              For Sale
+              For {data.type}
             </Typography>
             <Stack mt={1} direction="row" spacing={2} mx={2}>
               <Typography
@@ -78,7 +92,8 @@ function ListingCard(props: ListingProps) {
                   justifyContent: "center",
                 }}
               >
-                <BedIcon sx={{ marginRight: "5px" }} /> 3
+                <BedIcon sx={{ marginRight: "5px", color: "grey" }} />{" "}
+                {data.bedrooms}
               </Typography>
               <Divider orientation="vertical" flexItem />
               <Typography
@@ -91,7 +106,8 @@ function ListingCard(props: ListingProps) {
                   justifyContent: "center",
                 }}
               >
-                <BathtubIcon sx={{ marginRight: "5px" }} /> 3
+                <BathtubIcon sx={{ marginRight: "5px", color: "grey" }} />{" "}
+                {data.bathrooms}
               </Typography>
               <Divider orientation="vertical" flexItem />
               <Typography
@@ -104,8 +120,8 @@ function ListingCard(props: ListingProps) {
                   justifyContent: "center",
                 }}
               >
-                <SquareFootIcon sx={{ marginRight: "5px" }} />
-                3m&sup2;
+                <SquareFootIcon sx={{ marginRight: "5px", color: "grey" }} />
+                {data.sqft}m&sup2;
               </Typography>
             </Stack>
           </CardContent>

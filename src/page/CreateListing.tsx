@@ -104,7 +104,7 @@ function CreateListing() {
   };
 
   const [listingData, setListingData] = useState<ListingDataType>({
-    type: "sell",
+    type: "sale",
     homeType: "singleFamily",
     bedrooms: null,
     bathrooms: null,

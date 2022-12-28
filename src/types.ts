@@ -64,15 +64,31 @@ export interface SelectedLocationType {
   lng: number;
 }
 
+export interface ISearchQueries {
+  type: string | "sale" | "rent";
+  homeType:
+    | "singleFamily"
+    | "multiFamily"
+    | "condo"
+    | "townhouse"
+    | "coop"
+    | "apartment"
+    | "other";
+  bedrooms: number | null;
+  bathrooms: number | null;
+}
+
 export interface SearchBarProps {
   setSelected: Dispatch<SetStateAction<SelectedLocationType>>;
+  searchQueries: ISearchQueries;
+  setSearchQueries: Dispatch<SetStateAction<ISearchQueries>>;
 }
 export interface MapProps {
   selected: SelectedLocationType;
 }
 
 export interface ListingDataType {
-  type: "rent" | "sell";
+  type: "rent" | "sale";
   homeType:
     | "singleFamily"
     | "multiFamily"

@@ -74,9 +74,9 @@ function IntroForm(props: CreateListingFormProps) {
             name="type"
             color="primary"
             size="large"
-            value="sell"
+            value="sale"
             onChange={(e) => onFormChange(e)}
-            selected={type === "sell" ? true : false}
+            selected={type === "sale" ? true : false}
           >
             Sell
           </ToggleButton>
